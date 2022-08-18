@@ -1,19 +1,13 @@
 from sklearn.svm import SVC
-from sklearn import datasets
 import sys
 import sklearn
-import numpy as np
 import os
 import numpy as np
-from sklearn import datasets
-from sklearn.pipeline import Pipeline
-import utils
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 from sklearn import datasets
 from sklearn.datasets import make_moons
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import PolynomialFeatures
 import matplotlib.pyplot as plt
 
 
