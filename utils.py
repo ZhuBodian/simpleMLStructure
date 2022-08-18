@@ -1,5 +1,4 @@
 import sys
-import os
 import tarfile
 import urllib.request
 import pandas as pd
