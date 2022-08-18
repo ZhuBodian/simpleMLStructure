@@ -35,9 +35,8 @@ mpl.rc('xtick', labelsize=12)
 mpl.rc('ytick', labelsize=12)
 # Where to save the figures
 PROJECT_ROOT_DIR = "."
-CHAPTER_ID = "end_to_end_project"
-IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "images", CHAPTER_ID)
-os.makedirs(IMAGES_PATH, exist_ok=True)
+FOLDER_ID = "ML_complete_process"
+IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "images", FOLDER_ID)
 
 
 class CombinedAttributesAdder(BaseEstimator, TransformerMixin):
@@ -78,7 +77,7 @@ def take_a_quick_look_at_the_data_structure():
     print(housing.describe())
 
     housing.hist(bins=50, figsize=(20, 15))
-    utils.save_fig("attribute_histogram_plots")
+    utils.save_fig(IMAGES_PATH, "attribute_histogram_plots")
     plt.show()
 
     return housing
@@ -137,7 +136,7 @@ def discover_and_visualize_the_data_to_gain_insights(strat_train_set):
                  c="median_house_value", cmap=plt.get_cmap("jet"), colorbar=True,
                  sharex=False)
     plt.legend()
-    utils.save_fig("housing_prices_scatterplot")
+    utils.save_fig(IMAGES_PATH, "housing_prices_scatterplot")
 
     import matplotlib.image as mpimg
     images_path = os.path.join(PROJECT_ROOT_DIR, "datasets", "housing")
@@ -159,7 +158,7 @@ def discover_and_visualize_the_data_to_gain_insights(strat_train_set):
     cbar.set_label('Median House Value', fontsize=16)
 
     plt.legend(fontsize=16)
-    utils.save_fig("california_housing_prices_plot")
+    utils.save_fig(IMAGES_PATH, "california_housing_prices_plot")
     plt.show()
 
     corr_matrix = housing.corr()
@@ -168,11 +167,11 @@ def discover_and_visualize_the_data_to_gain_insights(strat_train_set):
     # from pandas.tools.plotting import scatter_matrix # For older versions of Pandas
     attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
     scatter_matrix(housing[attributes], figsize=(12, 8))
-    utils.save_fig("scatter_matrix_plot")
+    utils.save_fig(IMAGES_PATH, "scatter_matrix_plot")
 
     housing.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.1)
     plt.axis([0, 16, 0, 550000])
-    utils.save_fig("income_vs_house_value_scatterplot")
+    utils.save_fig(IMAGES_PATH, "income_vs_house_value_scatterplot")
 
     # 通过组合特征添加新特征
     housing["rooms_per_household"] = housing["total_rooms"] / housing["households"]
@@ -256,8 +255,8 @@ def select_and_train_a_model(housing_prepared, housing_labels, text_labels):
         # 交叉验证的线性回归模型
         # 计算线性模型的交叉验证作为对比
         print(f'CV version'.center(75, '*'))
-        lin_scores = cross_val_score(LinearRegression(), housing_prepared, housing_labels,
-                                     scoring="neg_mean_squared_error", cv=10)
+        lin_scores = cross_val_score(lin_reg, housing_prepared, housing_labels,
+                                     scoring="neg_mean_squared_error", cv=10, verbose=10)
         lin_rmse_scores = np.sqrt(-lin_scores)
         print(f'交叉验证线性回归损失：')
         utils.display_scores(lin_rmse_scores)
@@ -275,12 +274,12 @@ def select_and_train_a_model(housing_prepared, housing_labels, text_labels):
         print(f'决策树损失：{tree_rmse}')
 
         # 使用交叉验证的决策树模型
-        scores = cross_val_score(DecisionTreeRegressor(), housing_prepared, housing_labels,
-                                 scoring="neg_mean_squared_error", cv=10)
-        tree_rmse_scores = np.sqrt(-scores)
-        utils.display_scores(tree_rmse_scores)
         print(f'CV version'.center(75, '*'))
+        scores = cross_val_score(tree_reg, housing_prepared, housing_labels,
+                                 scoring="neg_mean_squared_error", cv=10, verbose=10)
+        tree_rmse_scores = np.sqrt(-scores)
         print(f'交叉验证决策树回归损失：')
+        utils.display_scores(tree_rmse_scores)
 
     def train_rfr():
         """随机森林回归模型"""
@@ -292,8 +291,9 @@ def select_and_train_a_model(housing_prepared, housing_labels, text_labels):
         print(f'随机森林回归损失：{forest_rmse}')
 
         # 交叉验证的随机森林
-        forest_scores = cross_val_score(RandomForestRegressor(), housing_prepared, housing_labels,
-                                        scoring="neg_mean_squared_error", cv=10)
+        print(f'CV version'.center(75, '*'))
+        forest_scores = cross_val_score(forest_reg, housing_prepared, housing_labels,
+                                        scoring="neg_mean_squared_error", cv=10, verbose=10)
         forest_rmse_scores = np.sqrt(-forest_scores)
         print(f'交叉验证随机森林回归损失：')
         utils.display_scores(forest_rmse_scores)
@@ -308,8 +308,8 @@ def select_and_train_a_model(housing_prepared, housing_labels, text_labels):
         print(f'SVR回归损失：{svm_rmse}')
 
         # 交叉验证的支持向量机回归
-        svr_scores = cross_val_score(SVR(kernel="linear"), housing_prepared, housing_labels,
-                                     scoring="neg_mean_squared_error", cv=10)
+        svr_scores = cross_val_score(svm_reg, housing_prepared, housing_labels,
+                                     scoring="neg_mean_squared_error", cv=10, verbose=10)
         svr_rmse_scores = np.sqrt(-svr_scores)
         print(f'交叉验证SVR回归损失：')
         utils.display_scores(svr_rmse_scores)
@@ -384,8 +384,8 @@ if __name__ == '__main__':
 
     housing = take_a_quick_look_at_the_data_structure()
     strat_train_set = create_a_test_set(housing)
-    # discover_and_visualize_the_data_to_gain_insights(strat_train_set)
+    discover_and_visualize_the_data_to_gain_insights(strat_train_set)
     housing_prepared, housing_labels, text_labels = prepare_the_data_for_machine_learning_algorithms(strat_train_set)
 
     # select_and_train_a_model(housing_prepared, housing_labels, text_labels)
-    fine_tune_your_model(housing_prepared, housing_labels, text_labels)
+    # fine_tune_your_model(housing_prepared, housing_labels, text_labels)
